@@ -9,14 +9,13 @@ RUN R -e "install.packages('cmdstanr', repos = c('https://mc-stan.org/r-packages
 RUN R -e "devtools::install_github('rmcelreath/rethinking')"
 
 # install cmdstanr
-RUN mkdir -p /home/rstudio/.cmdstanr
-ENV PATH="/home/rstudio/.cmdstanr:${PATH}"
-RUN R -e "cmdstanr::install_cmdstan(dir = '/home/rstudio/.cmdstanr', cores = 4)"
+RUN mkdir -p /workspace/.cmdstanr
+ENV PATH="/workspace/.cmdstanr:${PATH}"
+RUN R -e "cmdstanr::install_cmdstan(dir = '/workspace/.cmdstanr', cores = 4)"
 
 # rstudio setup
 COPY .gitpod/database.conf /etc/rstudio/database.conf
 COPY .gitpod/.Rprofile /usr/local/lib/R/etc/Rprofile.site
-COPY .gitpod/.Rprofile /home/rstudio/.Rprofile
 # install lib dependencies
 
 EXPOSE 8787
