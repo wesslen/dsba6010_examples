@@ -5,8 +5,11 @@ FROM $BASE_CONTAINER
 RUN R -e "install.packages('tidyverse', repos = 'http://cran.us.r-project.org')"
 RUN R -e "install.packages('brms', repos = 'http://cran.us.r-project.org')"
 RUN R -e "install.packages('osfr', repos = 'http://cran.us.r-project.org')"
+RUN R -e "install.packages('gganimate', repos = 'http://cran.us.r-project.org')"
 RUN R -e "install.packages('cmdstanr', repos = c('https://mc-stan.org/r-packages/', getOption('repos')))"
 RUN R -e "devtools::install_github('rmcelreath/rethinking')"
+RUN R -e "install.packages('downloadthis', repos = 'http://cran.us.r-project.org')"
+RUN R -e "devtools::install_github('gadenbuie/xaringanExtra')"
 
 # install cmdstanr
 RUN mkdir -p /workspace/.cmdstanr
