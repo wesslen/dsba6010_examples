@@ -5,10 +5,13 @@ tasks:
     before: |
       echo R_LIBS_USER=$GITPOD_REPO_ROOT/../.R/library > /home/gitpod/.Renviron
       cp .gitpod/.Rprofile /home/gitpod/  
-      echo 'RSTUDIO_CONFIG_DIR=/workspace/stat_rethinking_2022/.gitpod' >> /home/gitpod/.profile
+      echo 'RSTUDIO_CONFIG_DIR=/workspace/dsba6010_examples/.gitpod' >> /home/gitpod/.profile
     command: /usr/lib/rstudio-server/bin/rstudio-server start
   - name: R
     command: R
+vscode:
+  extensions:
+    - ikuyadeu.r
 ports:
   - port: 8787
     onOpen: open-browser

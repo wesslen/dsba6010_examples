@@ -1,6 +1,6 @@
-setwd("/workspace/stat_rethinking_2022")
+setwd("/workspace/dsba6010_examples")
 setHook("rstudio.sessionInit", function(newSession) {
   if (newSession && is.null(rstudioapi::getActiveProject()))
-    rstudioapi::openProject("/workspace/stat_rethinking_2022/")
+    rstudioapi::openProject("/workspace/dsba6010_examples/")
 }, action = "append")
 
