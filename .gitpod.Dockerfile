@@ -1,4 +1,4 @@
-ARG BASE_CONTAINER=rocker/verse:4.0.4
+ARG BASE_CONTAINER=rocker/verse:4.1.2
 FROM $BASE_CONTAINER
 
 # install r packages
