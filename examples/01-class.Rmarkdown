@@ -6,25 +6,13 @@ menu:
     parent: Examples
 weight: 1
 type: docs
-toc: true
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, class.source="language-r", class.output="language-r", message = FALSE, warning = FALSE)
 xaringanExtra::use_clipboard()
 library(rethinking)
-```
-
-```{r echo=FALSE}
-downloadthis::download_file(
-  path = "01-class.Rmarkdown",
-  output_name = "01-class",
-  button_label = "Download this code",
-  button_type = "danger",
-  has_icon = TRUE,
-  icon = "fa fa-save",
-  self_contained = FALSE
-)
 ```
 
 
