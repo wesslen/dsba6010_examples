@@ -10,6 +10,7 @@ RUN R -e "install.packages('cmdstanr', repos = c('https://mc-stan.org/r-packages
 RUN R -e "devtools::install_github('rmcelreath/rethinking')"
 RUN R -e "install.packages('downloadthis', repos = 'http://cran.us.r-project.org')"
 RUN R -e "install.packages('languageserver', repos = 'http://cran.us.r-project.org')"
+RUN R -e "install.packages('dagitty', repos = 'http://cran.us.r-project.org')"
 RUN R -e "install.packages('transformr', repos = 'http://cran.us.r-project.org')"
 RUN R -e "devtools::install_github('gadenbuie/xaringanExtra')"
 
