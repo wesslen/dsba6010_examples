@@ -1,16 +1,10 @@
 ---
 date: "`r Sys.Date()`"
 title: "Class 3"
-menu:
-  example:
-    parent: Examples
-weight: 3
 ---
 
-```{r setup, include=FALSE, fig.width=5, fig.height=4}
-knitr::opts_chunk$set(echo = TRUE, class.source="language-r", class.output="language-r", message = FALSE, warning = FALSE)
-xaringanExtra::use_clipboard()
-library(rethinking)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Introduction
@@ -38,20 +32,8 @@ library(rethinking)
 data(Howell1)
 d <- Howell1[Howell1$age>=18,]
 
-plot(d$height,d$weight, col = 2, xlab = "height (cm)", ylab = "weight (kg)", lwd=3)
+plot(d$height, d$weight, col = 2,  xlab = "height (cm)", ylab = "weight (kg)",  lwd=3)
 ```
-
-Alternatively, using `ggplot2` we can plot the same:
-
-```{r}
-library(ggplot2)
-
-ggplot(d, aes(x = height, y = weight)) +
-  geom_point(color = "red") +
-  labs(x = "height (cm)", y = "weight (kg)") +
-  theme_bw()
-```
-
 
 ### 2. Scientific model
 
@@ -61,10 +43,10 @@ Weight is a function of height.
 library(dagitty)
 
 g <- dagitty('dag {
-    W [pos="0,1"]
-    H [pos="1,1"]
+    H [pos="0,1"]
+    W [pos="1,1"]
     
-    W -> H
+    H -> W
 }')
 plot(g)
 ```
@@ -78,7 +60,10 @@ Let's consider the Generative Model (H -> W) from the lecture:
 $W_i \sim Normal(\mu_i,\sigma)$<br>
 $\mu_i = \alpha + \beta H_i$<br>
 
+Let's now conduct a prior predictive simulation to simulate "synthetic individuals".
+
 ```{r}
+set.seed(17)
 # forward simulation as we choose these parameters
 alpha <- 0 # implies zero height => zero weight
 beta <- 0.5 
@@ -86,27 +71,15 @@ sigma <- 5
 n_individuals <- 100
 
 H <- runif(n_individuals,130,170) # heights, uniform between 130 - 170 cm
-
 mu <- alpha + beta*H
 W <- rnorm(n_individuals,mu,sigma) # sample from Normal
 ```
 
 ```{r}
 col2 <- col.alpha(2,0.8)
-plot(H,W,  col=col2, lwd=3,
-     cex=1.2, xlab = "height (cm)", ylab = "weight (kg)")
+plot(W,H,  col=col2, lwd=3,
+     cex=1.2,  xlab = "weight (kg)", ylab = "height (cm)")
 mtext( "100 Simulated people" )
-```
-```{r}
-# ggplot2 version
-df <- data.frame(
-  height = H,
-  weight = W
-)
-
-ggplot(df, aes(x = height, y = weight)) +
-  geom_point(color="red") +
-  labs(x = "height (cm)", y = "weight (kg)", title = "100 Simulated people")
 ```
 
 #### Sampling the prior distribution
@@ -122,32 +95,7 @@ for (i in 1:n_samples){
   abline(alpha[i],beta[i],lwd=4,col=2)
 }
 ```
-
-```{r}
-df2 <- data.frame(
-  alpha = alpha,
-  beta = beta,
-  samp = 1:n_samples
-)
-
-p <- ggplot(df2) +
-  geom_abline(aes(slope = beta, intercept = alpha, group = samp)) +
-  xlim(-3,3) +
-  ylim(-3,3)
-
-p
-```
-```{r fig.height=2,fig.width=2}
-library(gganimate)
-
-anim <- p + transition_states(samp, transition_length=2, state_length=1) + 
-  ggtitle('Sample {closest_state} of 10') +
-  enter_fade() +
-  exit_fade()
-
-anim
-#animate(anim, height=2, width=3)
-```
+Our lines are similar but slightly different than what was shown
 
 ### 3. Statistical model for H->W
 
@@ -165,6 +113,7 @@ for (i in 1:n){
   lines(Hseq, alpha[i] + beta[i]*(Hseq-Hbar),lwd=3,col=2)
 }
 ```
+
 Is this a good prior to be used? Why or why not are they interpretable?
 
 Remember, a lognormal distribution is a distribution that if you take the logarithm of the values, then all of it's values would be normal. 
@@ -179,20 +128,20 @@ Let's do a predictive simulation now using the Log-Normal prior.
 
 ```{r}
 set.seed(2971)
-N <- 100  
-a <- rnorm( N , 60 , 10 )
-b <- rlnorm( N , 0 , 1 )
+n <- 10
+a <- rnorm( n , 60 , 5 )
+b <- rlnorm( n , 0 , 1 )
 
-plot(NULL, xlim=c(130,170), ylim=c(10,100),
-     xlab="height (cm)", ylab="weight (kg)")
+plot(NULL, ylim=c(130,170), xlim=c(10,100),
+     ylab="height (cm)", xlab="weight (kg)")
 
 for (i in 1:n){
-  lines(Hseq, a[i] + b[i]*(Hseq-Hbar),lwd=3,col=2)
+  lines(a[i] + b[i]*(Hseq-Hbar),Hseq, lwd=3,col=2)
 }
 ```
 {{% callout note %}}
 
-Key is justify priors with information outside of the data (that will be modeled). This is similar to machine learning where we don't want to include records in our test dataset that were also in our training. Using modeled data to form priors can be thought of as "prior-hacking". Typically in literature, Bayesian approaches require pre-registration when using non-informative priors (see [this example from Fernandes et al., 2018](https://github.com/michael-fernandes/uncertainty-displays-for-transit/blob/master/pre-registration.pdf)).
+Key is justify priors with information outside of the data (that will be modeled). This is similar to machine learning where we don't want to include records in our test dataset that were also in our training. Using modeled data to form priors can be thought of as "prior-hacking". Typically in literature, Bayesian approaches require pre-registration when using informative priors (see [this example from Fernandes et al., 2018](https://github.com/michael-fernandes/uncertainty-displays-for-transit/blob/master/pre-registration.pdf)).
 
 {{% /callout %}}
 
@@ -216,24 +165,27 @@ m4.3 <- quap(
         sigma ~ dunif( 0 , 50 )
     ) , data=d )
 
-## R code 4.43
-m4.3b <- quap(
-    alist(
-        height ~ dnorm( mu , sigma ) ,
-        mu <- a + exp(log_b)*( weight - xbar ),
-        a ~ dnorm( 178 , 20 ) ,
-        log_b ~ dnorm( 0 , 1 ) ,
-        sigma ~ dunif( 0 , 50 )
-    ) , data=d )
-
 ## R code 4.44
 precis( m4.3 )
 ```
+
+The first row gives the quadratic approximation for α, the second the approximation for β, and the third approximation for σ.
+
+Let’s focus on b (β). Since β is a slope, the value 0.90 can be read as a **person 1 kg heavier is expected to be 0.90 cm taller.** 89% of the posterior probability lies between 0.84 and 0.97. That suggests that **β values close to zero or greatly above one are highly incompatible with these data and this model.** It is most certainly not evidence that the relationship between weight and height is linear, because the model only considered lines. It just says that, if you are committed to a line, then lines with a slope around 0.9 are plausible ones.
 
 ```{r}
 ## R code 4.45
 round( vcov( m4.3 ) , 3 )
 ```
+
+```{r}
+# shows both the marginal posteriors and the covariance.
+pairs(m4.3)
+```
+
+There is little covariation among the parameters in this case. The lack of covariance among the parameters **results from centering.**
+
+As an exercise, consider rerunning the regression above without centering and compare the covariation.
 
 ### 4. Validate model
 
@@ -246,6 +198,8 @@ alpha <- 70
 beta <- 0.5
 sigma <- 5
 n_individuals <- 100
+
+# simulation
 H <- runif(n_individuals,130,170)
 mu <- alpha + beta*(H-mean(H))
 W <- rnorm(n_individuals,mu,sigma)
@@ -305,30 +259,84 @@ plot(d$height, d$weight, col=col2, lwd=3,
 
 
 ```{r}
-weight.seq <- seq(from=25,to=70,by=1)
-mu <- link(m4.3,data=list(weight=weight.seq))
-plot(d$height,d$weight,  col=col2, lwd=3,
+# get posterior mean via link function
+xseq <- seq(from=130,to=190,len=50)
+mu <- link(m_adults,data=list( H=xseq,Hbar=mean(d$height)))
+mu.mean <- apply( mu , 2 , mean )
+
+# plot same with lines for mu.mean
+plot(d$height, d$weight, col=col2, lwd=3,
      cex=1.2, xlab="height (cm)", ylab="weight (kg)")
-lines(  apply(mu,2,mean), weight.seq, lwd=4)
+lines(xseq, mu.mean, lwd=4)
 ```
 
 #### 3. Plot uncertainty of the mean
 
 ```{r}
-xseq <- seq(from=130,to=190,len=50)
-plot(d$height, d$weight, col=col2, lwd=3,
+# get PI for mu
+mu.PI <- apply( mu , 2 , PI , prob=0.89 )
+
+# replot same as 2
+plot(d$height, d$weight, col=col2 , lwd=3,
      cex=1.2, xlab="height (cm)", ylab="weight (kg)")
-lines(   apply(mu,2,mean), weight.seq,lwd=4)
-shade( apply(mu,2,PI,prob=0.99), weight.seq, col=col.alpha(2,0.5))
+lines( xseq , mu.mean )
+# add plot a shaded region for 89% PI
+shade( mu.PI , xseq )
+
+#alternative way to plot uncertainty of the mean
+#for ( i in 1:100 )
+#    lines( xseq , mu[i,] , pch=16, col=col.alpha(rangi2,0.1) )
 ```
 
 #### 4. Plot uncertainty of predictions
 
-{{% callout note %}}
+```{r}
+# simulate hypothetical addjusts given xseq
+sim.height <- sim( m_adults , data=list(H=xseq,Hbar=mean(d$height))) 
+height.PI <- apply( sim.height , 2 , PI , prob=0.89 )
 
-Try as [challenging exercise as shown in Slide 70 of Lecture 3](https://speakerdeck.com/rmcelreath/statistical-rethinking-2022-lecture-03?slide=70).
+# replot 3
+plot( d$height,d$weight, col=col2 , lwd=3,
+     cex=1.2, xlab="height (cm)", ylab="weight (kg)")
+lines( xseq, mu.mean)
+shade( mu.PI , xseq )
 
-{{% /callout %}}
+# add in PI region for simulated heights
+shade( height.PI , xseq )
+```
+
+### Example
+
+Let's say we want to simulate using the `m_adults` model four individuals, each with heights 140, 150, 170, and 190.
+
+Calculate the simulated mean weights and 89% percentile intervals for these four individuals.
+
+```{r}
+set.seed(100)
+sample_heights = c(135,150,170,190)
+
+simul_weights <- sim( m_adults , data=list(H=sample_heights,Hbar=mean(d$height))) 
+
+# simulated means
+mean_weights = apply( simul_weights , 2 , mean )
+mean_weights
+```
+
+```{r}
+# simulated PI's
+pi_weights = apply( simul_weights , 2 , PI , prob=0.89 )
+pi_weights
+```
+
+```{r}
+data.frame(
+  sample_heights = sample_heights,
+  simulated_mean = mean_weights,
+  low_pi = pi_weights[1,],
+  high_pi = pi_weights[2,]
+)
+```
+
 
 ## Package versions
 

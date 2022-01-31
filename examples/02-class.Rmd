@@ -1,22 +1,15 @@
 ---
-date: "`r Sys.Date()`"
 title: "Class 2"
-menu:
-  example:
-    parent: Examples
-weight: 2
-type: docs
+date: "`r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, class.source="language-r", class.output="language-r", message = FALSE, warning = FALSE)
-xaringanExtra::use_clipboard()
-library(rethinking)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Introduction
 
-For this class, we'll review code examples found in Chapter 2.
+For this class, we'll review code examples found in Chapter 2 and 3.
 
 This assumes that you have already installed the `rethinking` package.
 
@@ -411,9 +404,8 @@ anim <- ggplot(d2m1, aes(x = p_grid, y = posterior, group = obs)) +
   exit_fade()
 
 animate(anim, height = 500, width = 600)
-#anim_save("World-tossing-bayesian-chapter2.gif")
+#anim_save("../../static/img/example/World-tossing-bayesian-chapter2.gif")
 ```
-
 
 ## Package versions
 
